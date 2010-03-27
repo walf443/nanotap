@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #ifdef __GNUC__
 #define NANOTAP_DECLARE static __attribute__((__used__))
@@ -18,6 +19,34 @@
 #endif
 
 static int TEST_COUNT = 0;
+static int TEST_CONTEXT = 0;
+static char* TEST_CONTEXT_NAME = "";
+
+NANOTAP_INLINE NANOTAP_DECLARE int nanotap_printf(char * format, ...) {
+    int i;
+    for (i = 0; i < TEST_CONTEXT; i++) {
+        printf("\t");
+    }
+    va_list va;
+    int ret;
+    va_start(va, format);
+    ret = vprintf(format, va);
+    va_end(va);
+    return ret;
+}
+
+NANOTAP_INLINE NANOTAP_DECLARE int nanotap_fprintf(FILE *stream, char * format, ...) {
+    int i;
+    for (i = 0; i < TEST_CONTEXT; i++) {
+        fprintf(stream, "\t");
+    }
+    va_list va;
+    va_start(va, format);
+    int ret;
+    ret = vfprintf(stream, format, va);
+    va_end(va);
+    return ret;
+}
 
 /**
  * This simply evaluates any expression ("$got eq $expected" is just a
@@ -25,20 +54,20 @@ static int TEST_COUNT = 0;
  * failed.  A true expression passes, a false one fails.  Very simple.
  */
 NANOTAP_INLINE NANOTAP_DECLARE void ok(int x, const char *msg) {
-    printf("%s %d - %s\n", (x ? "ok" : "not ok"), ++TEST_COUNT, msg ? msg : "");
+    nanotap_printf("%s %d - %s\n", (x ? "ok" : "not ok"), ++TEST_COUNT, msg ? msg : "");
 }
 
 /**
  * display diagnostics message.
  */
 NANOTAP_INLINE NANOTAP_DECLARE void diag(const char *msg) {
-    fprintf(stderr, "# %s\n", msg ? msg : "");
+    nanotap_fprintf(stderr, "# %s\n", msg ? msg : "");
 }
 /**
  * display note message.
  */
 NANOTAP_INLINE NANOTAP_DECLARE void note(const char *msg) {
-    fprintf(stdout, "# %s\n", msg ? msg : "");
+    nanotap_fprintf(stdout, "# %s\n", msg ? msg : "");
 }
 
 /**
@@ -53,8 +82,25 @@ NANOTAP_INLINE NANOTAP_DECLARE void contains_string(const char *string, const ch
  * the plan when you’re done running tests.
  */
 NANOTAP_INLINE NANOTAP_DECLARE void done_testing() {
-    printf("1..%d\n", TEST_COUNT);
-    exit(0);
+    nanotap_printf("1..%d\n", TEST_COUNT);
+    if ( ! TEST_CONTEXT ) {
+        exit(0);
+    }
+}
+
+NANOTAP_INLINE NANOTAP_DECLARE void subtest(char *testname, int (* func)() ) {
+    int ret;
+    int tmp_test_count;
+    TEST_CONTEXT++;
+    TEST_CONTEXT_NAME = testname;
+    tmp_test_count = TEST_COUNT;
+    TEST_COUNT = 0;
+    ret = (* func)();
+    TEST_COUNT = tmp_test_count;
+    TEST_CONTEXT_NAME = "";
+    TEST_CONTEXT--;
+
+    ok(ret, testname);
 }
 
 #ifdef __cplusplus

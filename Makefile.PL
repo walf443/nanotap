@@ -10,6 +10,7 @@ $e->enable_warnings;
 $e->program('t/01_c', 't/01_c.c');
 $e->program('t/02_cpp', 't/02_cpp.cc');
 $e->program('t/04_is_binary', 't/04_is_binary.cc');
+$e->program('t/05_subtest', 't/05_subtest.cc');
 
 clib_header('nanotap.h');
 
