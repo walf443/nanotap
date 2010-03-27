@@ -26,7 +26,7 @@ static char* TEST_CONTEXT_NAME = "";
 NANOTAP_INLINE NANOTAP_DECLARE int nanotap_printf(char * format, ...) {
     int i;
     for (i = 0; i < TEST_CONTEXT; i++) {
-        printf("\t");
+        printf("    ");
     }
     va_list va;
     int ret;
@@ -39,7 +39,7 @@ NANOTAP_INLINE NANOTAP_DECLARE int nanotap_printf(char * format, ...) {
 NANOTAP_INLINE NANOTAP_DECLARE int nanotap_fprintf(FILE *stream, char * format, ...) {
     int i;
     for (i = 0; i < TEST_CONTEXT; i++) {
-        fprintf(stream, "\t");
+        fprintf(stream, "    ");
     }
     va_list va;
     va_start(va, format);
@@ -96,7 +96,7 @@ NANOTAP_INLINE NANOTAP_DECLARE void done_testing() {
     }
 }
 
-NANOTAP_INLINE NANOTAP_DECLARE void subtest(char *testname, int (* func)() ) {
+NANOTAP_INLINE NANOTAP_DECLARE void subtest(char *testname, void (* func)() ) {
     int ret;
     int tmp_test_count;
     int tmp_test_error_count;

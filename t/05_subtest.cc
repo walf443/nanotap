@@ -1,13 +1,13 @@
 #include "../nanotap.h"
 
-int subsubtest() {
+void subsubtest() {
     ok(1, "sub subtest1 ok");
     ok(0, "sub subtest1 fail");
     diag("SUB SUBTEST DIAG");
     done_testing();
 }
 
-int subtest1(){
+void subtest1(){
     ok(1, "subtest1 ok");
     diag("SUBTEST DIAG");
     subtest("sub subtest1", subsubtest);
