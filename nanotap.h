@@ -19,6 +19,7 @@
 #endif
 
 static int TEST_COUNT = 0;
+static int TEST_ERROR_COUNT = 0;
 static int TEST_CONTEXT = 0;
 static char* TEST_CONTEXT_NAME = "";
 
@@ -54,7 +55,14 @@ NANOTAP_INLINE NANOTAP_DECLARE int nanotap_fprintf(FILE *stream, char * format, 
  * failed.  A true expression passes, a false one fails.  Very simple.
  */
 NANOTAP_INLINE NANOTAP_DECLARE void ok(int x, const char *msg) {
-    nanotap_printf("%s %d - %s\n", (x ? "ok" : "not ok"), ++TEST_COUNT, msg ? msg : "");
+    char *result;
+    if ( x ) {
+        result = "ok";
+    } else {
+        TEST_ERROR_COUNT++;
+        result = "not ok";
+    }
+    nanotap_printf("%s %d - %s\n", result, ++TEST_COUNT, msg ? msg : "");
 }
 
 /**
@@ -91,16 +99,23 @@ NANOTAP_INLINE NANOTAP_DECLARE void done_testing() {
 NANOTAP_INLINE NANOTAP_DECLARE void subtest(char *testname, int (* func)() ) {
     int ret;
     int tmp_test_count;
+    int tmp_test_error_count;
     TEST_CONTEXT++;
     TEST_CONTEXT_NAME = testname;
     tmp_test_count = TEST_COUNT;
+    tmp_test_error_count = TEST_ERROR_COUNT;
     TEST_COUNT = 0;
-    ret = (* func)();
+    TEST_ERROR_COUNT = 0;
+
+    (* func)();
+    ret = TEST_ERROR_COUNT;
+
     TEST_COUNT = tmp_test_count;
+    TEST_ERROR_COUNT = tmp_test_error_count;
     TEST_CONTEXT_NAME = "";
     TEST_CONTEXT--;
 
-    ok(ret, testname);
+    ok(!ret, testname);
 }
 
 #ifdef __cplusplus

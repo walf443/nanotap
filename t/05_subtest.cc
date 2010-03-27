@@ -2,6 +2,7 @@
 
 int subsubtest() {
     ok(1, "sub subtest1 ok");
+    ok(0, "sub subtest1 fail");
     diag("SUB SUBTEST DIAG");
     done_testing();
 }

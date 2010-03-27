@@ -12,10 +12,11 @@ my $pid = open3($wtr, $rdr, $err, './t/05_subtest');
 is_ex(join('', <$rdr>), <<'...');
 	ok 1 - subtest1 ok
 		ok 1 - sub subtest1 ok
-		1..1
-	ok 2 - sub subtest1
+		not ok 2 - sub subtest1 fail
+		1..2
+	not ok 2 - sub subtest1
 	1..2
-ok 1 - subtest1
+not ok 1 - subtest1
 1..1
 ...
 
